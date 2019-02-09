@@ -127,19 +127,110 @@ siamese_dataset = SiameseNetworkDataset(genuine_pairs = genuine_pairs, imposter_
                                                                       transforms.ToTensor()])                                                                      
                                        ,should_invert=False)
     
-vis_dataloader = DataLoader(siamese_dataset,
-                        shuffle=True,
-                        #num_workers=8,
-                        batch_size=8)
+# =============================================================================
+# vis_dataloader = DataLoader(siamese_dataset,
+#                         shuffle=True,
+#                         #num_workers=8,
+#                         batch_size=8)
+# 
+# dataiter = iter(vis_dataloader)
+# 
+# 
+# example_batch = next(dataiter)
+# concatenated = torch.cat((example_batch[0],example_batch[1]),0)
+# imshow(torchvision.utils.make_grid(concatenated))
+# print(example_batch[2].numpy())
+# 
+# =============================================================================
 
-dataiter = iter(vis_dataloader)
-
-
-example_batch = next(dataiter)
-concatenated = torch.cat((example_batch[0],example_batch[1]),0)
-imshow(torchvision.utils.make_grid(concatenated))
-print(example_batch[2].numpy())
-
-
-
+class SiameseNetwork(nn.Module):
+    def __init__(self):
+        super(SiameseNetwork, self).__init__()
+        
+        # Convolution 1
+        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=64, kernel_size=10, stride=1, padding=0)
+        self.relu1 = nn.ReLU()
+        
+        # Max Pooling 1
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        
+        # Convolution 2
+        self.cnn2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=7, stride=1, padding=0)
+        self.relu2 = nn.ReLU()
+        
+        # Max Pooling 2
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        
+        # Convolution 3
+        self.cnn3 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=4, stride=1, padding=0)
+        self.relu3 = nn.ReLU()
+        
+        # Max Pooling 3
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        
+        # Convolution 4
+        self.cnn4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=1, padding=0)
+        self.relu4 = nn.ReLU()
+        
+        # Fully Connected 1
+        self.fc1 = nn.Linear(256 * 6 * 6, 4096)
+        self.sig1 = nn.Sigmoid()
+        
+        # Fully Connected 2
+        self.fc2 = nn.Linear(4096, 1)
+        self.sig2 = nn.Sigmoid()
+        
+    def forward_once(self, x):
+        
+        # Convolution 1
+        out = self.cnn1(x)
+        out = self.relu1(out)
+        
+        # Max pool 1
+        out = self.pool1(out)
+        
+        # Convolution 2 
+        out = self.cnn2(out)
+        out = self.relu2(out)
+        
+        # Max pool 2
+        out = self.pool2(out)
+        
+        # Convolution 3
+        out = self.cnn3(out)
+        out = self.relu3(out)
+        
+        # Max pool 3
+        out = self.pool3(out)
+        
+        # Convolution 4
+        out = self.cnn4(out)
+        out = self.relu4(out)
+        
+        # Resize
+        out = out.view(out.size(0), -1)
+        
+        # Fully Connected 1
+        out = self.fc1(out)
+        out = self.sig1(out)
+        
+        # Resize
+        out = out.view(out.size(0), -1)
+        
+        # Fully Connected 2
+        out = self.fc2(out)
+        out = self.sig2(out)
+        
+        return out
+    
+    def forward(self, input1, input2):
+        
+        # forward pass of input 1
+        output1 = self.forward_once(input1)
+        
+        # forward pass of input 2
+        output2 = self.forward_once(input2)
+        
+        return output1, output2
+        
         
