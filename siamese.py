@@ -21,8 +21,8 @@ torch.__version__
 
 training_dir = "./dataset/train/"
 testing_dir = "./dataset/test/"
-train_batch_size = 64
-train_number_epochs = 100
+train_batch_size = 32
+train_number_epochs = 20
 
 def imshow(img,text=None,should_save=False):
     npimg = img.numpy()
@@ -31,7 +31,11 @@ def imshow(img,text=None,should_save=False):
         plt.text(75, 8, text, style='italic',fontweight='bold',
             bbox={'facecolor':'white', 'alpha':0.8, 'pad':10})
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()    
+    plt.show()  
+    
+def show_plot(iteration,loss):
+    plt.plot(iteration,loss)
+    plt.show()
 
 
 folder_dataset = dset.ImageFolder(root=training_dir)
@@ -297,3 +301,58 @@ def weights_init(m):
         m.weight.data.normal_(0.0, 0.2)
         m.bias.data.normal_(0.5, 0.01) 
         
+# Training the model
+
+# Load the dataset as pytorch tensors using dataloader
+train_dataloader = DataLoader(siamese_dataset,
+                        shuffle=True,
+                        #num_workers=8,
+                        batch_size=train_batch_size)
+
+# Declare Siamese Network
+net = SiameseNetwork()
+
+# Apply initialized weights
+net.apply(weights_init)    
+
+# Declare Loss Function
+criterion = ContrastiveLoss() 
+
+# Declare Optimizer
+optimizer = optim.Adam(net.parameters(),lr = 0.0005)
+
+counter = []
+loss_history = [] 
+iteration_number= 0
+
+for epoch in range(0, train_number_epochs):
+    for i, data in enumerate(train_dataloader,0):
+        img0, img1 , label = Variable(data)
+        #img0, img1 , label = img0.cuda(), img1.cuda() , label.cuda()
+        
+        # Clear gradients w.r.t. parameters
+        optimizer.zero_grad()
+        
+        # Forward pass to get output/logits
+        output1,output2 = net(img0,img1)
+        
+        # Calculate Loss: Contrastive loss
+        loss_contrastive = criterion(output1,output2,label)
+        
+        # Getting gradients w.r.t. parameters
+        loss_contrastive.backward()
+        
+        # Updating parameters
+        optimizer.step()
+        
+        if i %50 == 0 :
+            print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive.item()))
+            iteration_number +=10
+            counter.append(iteration_number)
+            loss_history.append(loss_contrastive.item())
+            
+show_plot(counter,loss_history)
+
+# Saving the model
+torch.save(net.state_dict(), "C:/Users/goelp/Desktop/siamese/model.pt")
+print("Model Saved Successfully")
