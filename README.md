@@ -35,7 +35,7 @@ Or you can download the pretrained model from [Here](https://drive.google.com/op
 ## Authors
 
 * **Parth Goel** - *Initial work* - [parthgoe1](https://github.com/parthgoe1)
-* **Vaibhav Singh** - *Initial work* - [singhv04](https://github.com/singhv04)
+* **Vaibhav Singh** - *Bugs fixed* - [singhv04](https://github.com/singhv04)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
