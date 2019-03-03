@@ -23,7 +23,7 @@ AT & T. You can get the dataset by cloning this repository
 
 ## Running the tests
 
-You can use the pretrained model for running the tests, but it is a gpu trained model so it won't run on a cpu. Code for loading the model is also included in the ipynb file. No need to run all the training code in that case.
+You can run the code to train the model and save it for later use. Just uncomment the loading model part to use the pre-trained model. 
 
 
 ## Built With
