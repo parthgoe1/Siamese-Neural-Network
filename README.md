@@ -23,7 +23,8 @@ AT & T. You can get the dataset by cloning this repository
 
 ## Running the tests
 
-You can run the code to train the model and save it for later use. Just uncomment the loading model part to use the pre-trained model. 
+You can run the code to train the model and save it for later use. Just uncomment the loading model part to use the pre-trained model.
+Or you can download the pretrained model from [Here](https://drive.google.com/open?id=15YCXIv1Y2uSQJAENxRFjtXq1fQgEX53v) though keep in mind that it is a GPU model so it won't work on a CPU. If you're using this pretrained model no need to run the training part of the code. You can directly load the model and test the code.
 
 
 ## Built With
